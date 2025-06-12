@@ -44,9 +44,11 @@ def chat_with_rasa(request):
 def get_chat_logs(request):
     logs = ChatLogs.objects.filter(session__user = request.user).order_by('tanggal')
     data = [{
+        "id": log.id,
         "message": log.message,
         "response": log.response,
-        "datetime": log.tanggal.strftime('%I:%M %p')  
+        "datetime": log.tanggal.strftime('%I:%M %p'),
+        "score": log.score if log.score is not None else 0
     } for log in logs]
     return JsonResponse({"chat_logs": data})
 
@@ -76,3 +78,17 @@ def close_chat_session(request):
         session.save()
         return JsonResponse({"status": "closed"})
     return JsonResponse({"error": "No open session"}, status=404)
+
+def update_score(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        chatlog_id = data.get("chatlog_id")
+        score = data.get("score")
+        
+        chatlog = get_object_or_404(ChatLogs, id=chatlog_id)
+        chatlog.score = score
+        chatlog.save()
+
+        return JsonResponse({"status": "success", "score": score})
+    
+    return JsonResponse({"error": "Invalid method"}, status=405)

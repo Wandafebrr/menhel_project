@@ -8,4 +8,5 @@ urlpatterns = [
     path("create-chat-session/", views.create_chat_session, name="create_chat_session"),
     path("chat-session-status/", views.get_chat_session_status, name="get_chat_session_status"),
     path("close-chat-session/", views.close_chat_session, name="close_chat_session"),
+    path("update-score/", views.update_score, name="update_score"),
 ]

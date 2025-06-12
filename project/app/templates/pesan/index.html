@@ -7,13 +7,6 @@
 {% endblock %}
 
 {% block content %}
-{% comment %} <div class="container-xxl flex-grow-1 container-p-y">
-    <h4 class="py-3 mb-4"><span class="text-muted fw-light">Welcome </span> {{request.user.username}}</h4>
-    <div class="row">
-    </div>
-</div> {% endcomment %}
-
-<!-- Content -->
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-chat card overflow-hidden">
@@ -30,18 +23,7 @@
                     data-overlay
                     data-target="#app-chat-contacts"></i>
                   <div class="flex-shrink-0 avatar">
-                    {% comment %} <img
-                      src="{% static 'assets/img/avatars/2.png' %}"
-                      alt="Avatar"
-                      class="rounded-circle"
-                      data-bs-toggle="sidebar"
-                      data-overlay
-                      data-target="#app-chat-sidebar-right" /> {% endcomment %}
                   </div>
-                  {% comment %} <div class="chat-contact-info flex-grow-1 ms-2">
-                    <h6 class="m-0">Teman Bercerita</h6>
-                    <small class="user-status text-muted">NextJS developer</small>
-                  </div> {% endcomment %}
                 </div>
               </div>
             </div>
@@ -81,7 +63,7 @@
 
 {% block script %}
 <script>
-  function appendMessage(from, text, time = null) {
+  function appendMessage(from, text, time = null, chatlogId = null, score = null) {
     const isUser = from === "Kamu";
     const avatarUrl = isUser 
       ? "{% static 'assets/img/avatars/1.png' %}" 
@@ -123,6 +105,51 @@
               <div class="text-muted mt-1">
                 <small>${time}</small>
               </div>
+              <div class="d-flex w-1/2">
+                <div class="form-check custom-option custom-option-icon" style="margin: 0px 5px;" >
+                  <label class="form-check-label custom-option-content" for="" style="padding: 0px 10px;">
+                    <span class="custom-option-body" >
+                      <span class="custom-option-title">1</span>
+                    </span>
+                    <input name="customOptionRadioIcon-${chatlogId}" class="form-check-input score-radio" type="radio" value="1" ${score == 1 ? "checked" : ""} data-chatlog-id="${chatlogId}" />
+                  </label>
+                </div>
+                <div class="form-check custom-option custom-option-icon" style="margin: 0px 5px;" >
+                  <label class="form-check-label custom-option-content" for="" style="padding: 0px 10px;">
+                    <span class="custom-option-body" >
+                      <span class="custom-option-title">2</span>
+                    </span>
+                    <input name="customOptionRadioIcon-${chatlogId}" class="form-check-input score-radio" type="radio" value="2" ${score == 2 ? "checked" : ""} data-chatlog-id="${chatlogId}" />
+                  </label>
+                </div>
+                <div class="form-check custom-option custom-option-icon" style="margin: 0px 5px;" >
+                  <label class="form-check-label custom-option-content" for="" style="padding: 0px 10px;">
+                    <span class="custom-option-body" >
+                      <span class="custom-option-title">3</span>
+                    </span>
+                    <input name="customOptionRadioIcon-${chatlogId}" class="form-check-input score-radio" type="radio" value="3" ${score == 3 ? "checked" : ""} data-chatlog-id="${chatlogId}" />
+                  </label>
+                </div>
+                <div class="form-check custom-option custom-option-icon" style="margin: 0px 5px;" >
+                  <label class="form-check-label custom-option-content" for="" style="padding: 0px 10px;">
+                    <span class="custom-option-body" >
+                      <span class="custom-option-title">4</span>
+                    </span>
+                    <input name="customOptionRadioIcon-${chatlogId}" class="form-check-input score-radio" type="radio" value="4" ${score == 4 ? "checked" : ""} data-chatlog-id="${chatlogId}" />
+                  </label>
+                </div>
+                <div class="form-check custom-option custom-option-icon" style="margin: 0px 5px;" >
+                  <label class="form-check-label custom-option-content" for="" style="padding: 0px 10px;">
+                    <span class="custom-option-body" >
+                      <span class="custom-option-title">5</span>
+                    </span>
+                    <input name="customOptionRadioIcon-${chatlogId}" class="form-check-input score-radio" type="radio" value="5" ${score == 5 ? "checked" : ""} data-chatlog-id="${chatlogId}" />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <p>Berikan penilaian terhadap jawaban ini dengan skala 1-5</p>
+              </div>
             </div>`}
         </div>
       </li>`;
@@ -135,7 +162,7 @@
       $(".chat-history").empty();
       data.chat_logs.forEach(log => {
         appendMessage("Kamu", log.message, log.tanggal);
-        appendMessage("Bot", log.response || "(tidak ada balasan)", log.tanggal);
+        appendMessage("Bot", log.response || "(tidak ada balasan)", log.tanggal, log.id, log.score);
       });
     });
   }
@@ -217,6 +244,33 @@
         }
       });
     }
+
+     $(document).on('change', '.score-radio', function () {
+      var score = $(this).val();
+      var chatlogId = $(this).data('chatlog-id');
+      console.log(chatlogId)
+
+      fetch("{% url 'update_score' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+          chatlog_id: chatlogId,
+          score: score
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === "success") {
+          console.log("Score updated:", data.score);
+        } else {
+          console.error("Update failed:", data);
+        }
+      })
+      .catch(error => console.error("Fetch error:", error));
+    });
   });
   
 </script>
