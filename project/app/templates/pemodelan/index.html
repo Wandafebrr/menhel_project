@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block title %}
@@ -8,17 +7,18 @@
 
 {% block content %}
 <!-- Content -->
-
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="app-ecommerce">
     <div class="row">
       <div class="col-12">
+
         <!-- Organize Card -->
         <div class="card mb-4">
           <div class="card-header">
             <h5 class="card-title mb-0">Pemodelan Topik</h5>
           </div>
           <div class="card-body">
+
             <!-- Hasil Clustering Data -->
             <h4 class="text-center mb-4">Hasil Clustering Data</h4>
             <div class="table-responsive">
@@ -32,7 +32,7 @@
             <form method="post" class="mt-3">
               {% csrf_token %}
               <div class="mb-3">
-                <textarea name="text_input" class="form-control" rows="3" placeholder="Masukkan teks di sini..."></textarea>
+                <textarea name="text_input" class="form-control" rows="3" placeholder="Masukkan teks di sini...">{% if text_input %}{{ text_input }}{% endif %}</textarea>
               </div>
               <button type="submit" class="btn btn-primary">Prediksi</button>
             </form>
@@ -53,12 +53,24 @@
                 id="ecommerce-product-tags"
                 class="form-control"
                 name="ecommerce-product-tags"
-                value="Normal, Standard, Premium"
+                value="{{ topic_list }}"
                 readonly />
             </div>
+
+            {% if coherence_score %}
+            <div class="mb-3">
+              <label class="form-label">Nilai Coherence</label>
+              <input
+                class="form-control"
+                value="{{ coherence_score|floatformat:4 }}"
+                readonly />
+            </div>
+            {% endif %}
+
           </div>
         </div>
         <!-- /Organize Card -->
+
       </div>
     </div>
   </div>
